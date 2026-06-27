@@ -27,7 +27,7 @@ export class StockMovementsService {
       throw new NotFoundException('Produto nao encontrado.');
     }
 
-    if (!product.status) {
+    if (!product.active) {
       throw new BadRequestException(
         'Produto inativo nao pode receber movimentacao.',
       );

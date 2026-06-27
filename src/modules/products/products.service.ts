@@ -32,7 +32,7 @@ export class ProductsService {
         name: createProductDto.name,
         sku: createProductDto.sku,
         minimumStock: createProductDto.minimumStock,
-        status: true,
+        active: true,
       },
     });
   }
@@ -40,12 +40,12 @@ export class ProductsService {
   async findAll(filters: FilterProductDto) {
     const name = filters.name?.trim() || undefined;
     const sku = filters.sku?.trim() || undefined;
-    const statusFilter = filters.status?.trim();
+    const activeFilter = filters.active?.trim();
 
-    const status =
-      statusFilter === 'true'
+    const active =
+      activeFilter === 'true'
         ? true
-        : statusFilter === 'false'
+        : activeFilter === 'false'
           ? false
           : undefined;
 
@@ -63,7 +63,7 @@ export class ProductsService {
               mode: 'insensitive',
             }
           : undefined,
-        status,
+        active,
       },
       orderBy: {
         createdAt: 'desc',
@@ -88,7 +88,7 @@ export class ProductsService {
   async inactivate(id: string) {
     const product = await this.findOne(id);
 
-    if (!product.status) {
+    if (!product.active) {
       throw new BadRequestException('Produto já está inativo.');
     }
 
@@ -97,7 +97,7 @@ export class ProductsService {
         id,
       },
       data: {
-        status: false,
+        active: false,
       },
     });
   }
@@ -105,7 +105,7 @@ export class ProductsService {
   async activate(id: string) {
     const product = await this.findOne(id);
 
-    if (product.status) {
+    if (product.active) {
       throw new BadRequestException('Produto já está ativo.');
     }
 
@@ -114,7 +114,7 @@ export class ProductsService {
         id,
       },
       data: {
-        status: true,
+        active: true,
       },
     });
   }

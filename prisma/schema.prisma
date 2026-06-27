@@ -44,7 +44,7 @@ model Product {
   name         String
   sku          String   @unique
   minimumStock Int
-  status       Boolean  @default(true)
+  active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -53,7 +53,7 @@ model Product {
 
   @@index([name])
   @@index([sku])
-  @@index([status])
+  @@index([active])
   @@map("products")
 }
 

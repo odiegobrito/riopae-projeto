@@ -60,7 +60,7 @@ describe('StockMovementsService', () => {
   it('bloqueia saida maior que saldo disponivel', async () => {
     prisma.product.findUnique.mockResolvedValue({
       id: 'product-1',
-      status: true,
+      active: true,
     });
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-1',

@@ -20,9 +20,9 @@ export class FilterProductDto {
 
   @ApiPropertyOptional({
     example: 'true',
-    description: 'Filtra produtos pelo status (true ou false).',
+    description: 'Filtra produtos pelo campo active (true ou false).',
   })
   @IsOptional()
   @IsBooleanString()
-  status?: string;
+  active?: string;
 }

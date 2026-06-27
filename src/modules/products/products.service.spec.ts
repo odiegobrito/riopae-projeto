@@ -57,7 +57,7 @@ describe('ProductsService', () => {
       name: 'Mouse Gamer',
       sku: 'MOU001',
       minimumStock: 10,
-      status: true,
+      active: true,
     };
 
     prisma.product.findUnique.mockResolvedValue(null);
@@ -76,7 +76,7 @@ describe('ProductsService', () => {
         name: 'Mouse Gamer',
         sku: 'MOU001',
         minimumStock: 10,
-        status: true,
+        active: true,
       },
     });
   });

@@ -25,7 +25,7 @@ export class ProductResponseDto {
     example: true,
     description: 'Indica se o produto esta ativo.',
   })
-  status: boolean;
+  active: boolean;
 
   @ApiProperty({
     example: '2026-06-26T22:49:57.504Z',

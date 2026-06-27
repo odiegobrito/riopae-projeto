@@ -196,7 +196,7 @@ Principais endpoints:
 | ------ | -------------------------------- | --------------------------------------------------- |
 | POST   | `/auth/login`                    | Login JWT                                           |
 | POST   | `/products`                      | Criar produto                                       |
-| GET    | `/products`                      | Listar produtos com filtros `name`, `sku`, `status` |
+| GET    | `/products`                      | Listar produtos com filtros `name`, `sku`, `active` |
 | GET    | `/products/:id`                  | Buscar produto                                      |
 | PATCH  | `/products/:id/activate`         | Ativar produto                                      |
 | PATCH  | `/products/:id/inactivate`       | Inativar produto                                    |
@@ -212,7 +212,7 @@ Principais endpoints:
 src/
   modules/
     auth/              JWT, login, decorators e guards de perfil
-    products/          cadastro, listagem, status e saldo de produtos
+    products/          cadastro, listagem, campo active e saldo de produtos
     stocks/            movimentacoes de estoque e invalidacao de cache
     purchase-requests/ solicitacoes de compra e fluxo approve/reject
     users/             base para evolucao de usuarios
