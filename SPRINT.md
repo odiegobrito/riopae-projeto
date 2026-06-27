@@ -127,3 +127,9 @@ No PR eu destacaria:
 - como executar testes;
 - riscos conhecidos;
 - pontos que merecem revisao cuidadosa, principalmente permissoes, constraints e cache.
+
+## Resumo que eu colocaria no PR
+
+Eu abriria o PR como uma entrega fechada da sprint curta. Na descricao, deixaria claro que a API cobre produtos, movimentacoes de estoque, saldo com Redis, solicitacoes de compra, autenticacao com JWT, autorizacao por perfil, migrations, seed, Swagger e testes automatizados.
+
+Tambem chamaria atencao para os pontos que eu gostaria que outro desenvolvedor revisasse com mais cuidado: regras de permissao, transacao na saida de estoque, invalidacao do cache Redis e constraints do banco.
