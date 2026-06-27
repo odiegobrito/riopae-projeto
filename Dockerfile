@@ -7,6 +7,7 @@ FROM node:22-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV DATABASE_URL="postgresql://riopae:postgres@postgres:5432/riopae_stock?schema=public"
 RUN npx prisma generate
 RUN npm run build
 
