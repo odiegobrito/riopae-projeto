@@ -42,6 +42,8 @@ export class ProductsService {
     const sku = filters.sku?.trim() || undefined;
     const activeFilter = filters.active?.trim();
 
+    // Converto o filtro recebido pela query string para boolean,
+    // deixando undefined quando o cliente nao quiser filtrar por status ativo.
     const active =
       activeFilter === 'true'
         ? true
@@ -133,6 +135,8 @@ export class ProductsService {
       };
     }
 
+    // Quando nao encontro saldo em cache, recalculo pelo historico.
+    // Assim o Redis ajuda na leitura, mas o banco continua sendo a fonte real.
     const movements = await this.prisma.stockMovement.findMany({
       where: {
         productId: id,

@@ -1,8 +1,10 @@
 # RioPae Stock API
 
-API REST para controle de estoque da RioPae. O dominio cobre cadastro de produtos, movimentacoes de entrada e saida, consulta de saldo com cache Redis, solicitacoes de compra e autorizacao por perfil.
+Eu desenvolvi esta API REST para simular um modulo simples de estoque e solicitacao de compra dentro de um ERP. A ideia foi entregar uma base pequena, mas organizada, com regras de negocio claras, autenticacao, cache com Redis, migrations e testes automatizados.
 
-## Stack
+O dominio cobre cadastro de produtos, entradas e saidas de estoque, consulta de saldo, solicitacoes de compra e controle de permissao por perfil.
+
+## Stack que usei
 
 - Node.js + NestJS
 - TypeScript
@@ -12,6 +14,7 @@ API REST para controle de estoque da RioPae. O dominio cobre cadastro de produto
 - JWT
 - Swagger/OpenAPI
 - Jest
+- Docker Compose
 
 ## Requisitos de ambiente
 
@@ -21,7 +24,7 @@ API REST para controle de estoque da RioPae. O dominio cobre cadastro de produto
 
 ## Variaveis de ambiente
 
-Copie o arquivo de exemplo:
+Eu deixei um `.env.example` no projeto para facilitar a configuracao local.
 
 ```bash
 cp .env.example .env
@@ -39,36 +42,34 @@ Variaveis usadas:
 | `REDIS_PORT`              | Porta do Redis                              | `6379`                                                                   |
 | `STOCK_BALANCE_CACHE_TTL` | TTL do cache de saldo em segundos           | `60`                                                                     |
 
-Nao commite `.env`, tokens ou credenciais reais.
-
 ## Como rodar localmente
 
-Instale as dependencias:
+Primeiro instale as dependencias:
 
 ```bash
 npm install
 ```
 
-Suba PostgreSQL e Redis:
+Depois suba PostgreSQL e Redis:
 
 ```bash
 docker compose up -d postgres redis
 ```
 
-Execute migrations e seed:
+Com o banco no ar, aplique as migrations e rode o seed:
 
 ```bash
 npx.cmd prisma migrate deploy
 npx.cmd prisma db seed
 ```
 
-Inicie a API em modo desenvolvimento:
+Por fim, inicie a API em modo desenvolvimento:
 
 ```bash
 npm.cmd run start:dev
 ```
 
-Swagger:
+O Swagger fica disponivel em:
 
 ```text
 http://localhost:3000/docs
@@ -76,7 +77,7 @@ http://localhost:3000/docs
 
 ## Como rodar com Docker Compose
 
-Suba todos os servicos:
+Tambem deixei o projeto preparado para subir tudo com Docker Compose:
 
 ```bash
 docker compose up --build
@@ -89,63 +90,59 @@ docker compose exec api npx prisma migrate deploy
 docker compose exec api npx prisma db seed
 ```
 
-A API ficara disponivel em:
+Depois disso, a API pode ser acessada em:
 
 ```text
 http://localhost:3000/docs
 ```
 
-## Migrations e Prisma
+## Prisma e migrations
 
-Validar schema:
+Comandos que usei durante o desenvolvimento:
 
 ```bash
 npx.cmd prisma validate
-```
-
-Gerar client:
-
-```bash
 npx.cmd prisma generate
-```
-
-Aplicar migrations:
-
-```bash
 npx.cmd prisma migrate deploy
-```
-
-Abrir Prisma Studio:
-
-```bash
 npx.cmd prisma studio
 ```
 
+As migrations criam as tabelas principais do desafio:
+
+- `users`
+- `products`
+- `stock_movements`
+- `purchase_requests`
+
+Na modelagem eu inclui chaves primarias, chaves estrangeiras, enums, indices, timestamps e constraints basicas, como SKU unico, quantidade positiva, estoque minimo nao negativo e solicitacao `PENDING` unica por produto.
+
 ## Testes
 
-Executar testes automatizados:
+Para executar os testes:
 
 ```bash
 npm.cmd test -- --runInBand
 ```
 
-Build:
+Para validar o build:
 
 ```bash
 npm.cmd run build
 ```
 
-A suite cobre, entre outros cenarios:
+A suite cobre os principais pontos obrigatorios:
 
 - criar produto com SKU unico;
 - bloquear SKU duplicado;
 - calcular saldo de estoque;
 - bloquear saida maior que saldo;
-- bloquear aprovacao por usuario sem permissao.
+- bloquear aprovacao por usuario sem permissao;
+- validar fluxo de solicitacao de compra;
+- validar comportamento do cache de saldo.
 
 ## Usuarios de teste
 
-Os usuarios sao criados pelo seed:
+Eu optei por seed de usuarios em vez de criar um endpoint publico de cadastro. Assim o avaliador consegue testar os perfis sem precisar montar dados manualmente.
 
 | Email                   | Senha    | Perfil     |
 | ----------------------- | -------- | ---------- |
@@ -184,7 +181,7 @@ Bearer SEU_TOKEN
 
 ## Endpoints
 
-Swagger/OpenAPI:
+A documentacao interativa esta no Swagger:
 
 ```text
 GET /docs
@@ -206,13 +203,15 @@ Principais endpoints:
 | PATCH  | `/purchase-requests/:id/approve` | Aprovar solicitacao                                 |
 | PATCH  | `/purchase-requests/:id/reject`  | Reprovar solicitacao com motivo                     |
 
-## Arquitetura e modulos
+## Arquitetura e divisao dos modulos
+
+Eu separei o projeto por modulos para deixar cada parte do dominio mais facil de revisar:
 
 ```text
 src/
   modules/
-    auth/              JWT, login, decorators e guards de perfil
-    products/          cadastro, listagem, campo active e saldo de produtos
+    auth/              login JWT, decorators e guards de perfil
+    products/          cadastro, listagem, ativacao e saldo de produtos
     stocks/            movimentacoes de estoque e invalidacao de cache
     purchase-requests/ solicitacoes de compra e fluxo approve/reject
     users/             base para evolucao de usuarios
@@ -224,47 +223,37 @@ prisma/
   seed.ts
 ```
 
-O Nest separa controllers, services e DTOs por modulo. O Prisma concentra a persistencia relacional e o Redis e usado apenas como cache auxiliar.
+Mantive controllers, services e DTOs separados. O Prisma ficou responsavel pela persistencia relacional e o Redis entrou apenas como cache auxiliar, sem virar fonte da verdade do saldo.
 
 ## Redis, TTL e invalidacao
 
-O endpoint `GET /products/:id/stock-balance` calcula o saldo a partir do historico de `stock_movements`.
+No endpoint `GET /products/:id/stock-balance`, eu calculo o saldo a partir do historico de `stock_movements`.
 
-Fluxo:
+O fluxo ficou assim:
 
 1. A API consulta a chave `stock-balance:{productId}` no Redis.
-2. Se existir valor, retorna `source: "cache"`.
-3. Se nao existir valor, busca as movimentacoes no PostgreSQL, calcula o saldo e grava no Redis.
-4. O TTL vem de `STOCK_BALANCE_CACHE_TTL`; se nao configurado, usa `60` segundos.
-5. Toda nova movimentacao remove a chave `stock-balance:{productId}` para forcar recalculo na proxima consulta.
+2. Se existir valor em cache, retorno o saldo com `source: "cache"`.
+3. Se nao existir cache, busco as movimentacoes no PostgreSQL, calculo o saldo e salvo no Redis.
+4. O TTL vem de `STOCK_BALANCE_CACHE_TTL`; se nao for configurado, uso `60` segundos.
+5. Quando uma nova movimentacao e registrada, removo a chave `stock-balance:{productId}` para forcar o recalculo na proxima consulta.
 
-Se o Redis estiver indisponivel, a API continua funcionando com PostgreSQL. Falhas de leitura, escrita ou invalidacao no Redis nao bloqueiam as operacoes principais.
-
-## Banco de dados
-
-As migrations criam:
-
-- `users`
-- `products`
-- `stock_movements`
-- `purchase_requests`
-
-A modelagem inclui chaves primarias, chaves estrangeiras, enums, indices, timestamps e constraints basicas como SKU unico, quantidade positiva, estoque minimo nao negativo e solicitacao `PENDING` unica por produto.
+Se o Redis estiver indisponivel, a API continua funcionando com PostgreSQL. Eu tratei Redis como apoio de performance: falhas de leitura, escrita ou invalidacao no cache nao devem derrubar as operacoes principais.
 
 ## Decisoes tecnicas
 
-- JWT simples com seed de usuarios para reduzir escopo e manter o fluxo testavel.
-- Prisma 7 com driver adapter PostgreSQL.
-- Redis tratado como cache auxiliar, nunca como fonte da verdade.
-- Cache de saldo por invalidacao em nova movimentacao, evitando recalculo em leituras repetidas.
-- Roles via decorators e guards para manter autorizacao declarativa nos controllers.
-- `POST /auth/register` ficou fora do escopo; a entrega usa seed documentada.
+- Usei JWT simples com seed de usuarios para manter o escopo controlado e facil de testar.
+- Usei Prisma 7 com driver adapter PostgreSQL.
+- Mantive Redis como cache auxiliar, nunca como fonte oficial do saldo.
+- Escolhi invalidar o cache a cada nova movimentacao, porque isso evita devolver saldo antigo.
+- Usei decorators e guards para deixar a autorizacao clara nos controllers.
+- Mantive `POST /auth/register` fora do escopo, ja que o seed documentado atende ao requisito minimo.
+- Inclui `PATCH /products/:id/activate` mesmo nao sendo obrigatorio, porque na pratica o usuario precisa conseguir reativar um produto inativado.
 
-## Pendencias e melhorias futuras
+## O que eu melhoraria com mais tempo
 
-- Adicionar testes de integracao com PostgreSQL e Redis reais em containers.
-- Adicionar paginacao em listagens.
-- Melhorar auditoria de quem aprova/reprova solicitacoes.
-- Trocar o usuario fallback de sistema por autenticacao obrigatoria em todos os fluxos internos.
-- Adicionar pipeline CI no GitHub Actions.
-- Refinar regra do tipo `ADJUSTMENT`, hoje mantido no enum mas nao exposto como fluxo principal.
+- Criaria testes de integracao com PostgreSQL e Redis reais em containers.
+- Adicionaria paginacao nas listagens.
+- Melhoraria a auditoria de aprovacao/reprovacao com `approvedById` e `rejectedById`.
+- Removeria o fallback de usuario de sistema depois que todos os fluxos estivessem obrigatoriamente autenticados.
+- Criaria uma pipeline de CI no GitHub Actions.
+- Refinaria o tipo `ADJUSTMENT`, que hoje esta no enum, mas nao entrou como fluxo principal.

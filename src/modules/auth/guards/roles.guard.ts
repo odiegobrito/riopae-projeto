@@ -18,6 +18,8 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
+    // A permissao fica declarada no controller; aqui eu apenas comparo
+    // o perfil do token JWT com os perfis aceitos na rota.
     const request = context.switchToHttp().getRequest<{ user?: AuthUser }>();
     const user = request.user;
 

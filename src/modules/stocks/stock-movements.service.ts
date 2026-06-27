@@ -64,6 +64,8 @@ export class StockMovementsService {
     data: CreateStockMovementDto,
     userId?: string,
   ) {
+    // Deixei a saida dentro de transacao para validar saldo e gravar a
+    // movimentacao no mesmo fluxo, reduzindo risco de inconsistencia.
     const movement = await this.prisma.$transaction(async (tx) => {
       const user = await this.getMovementUser(userId, tx);
       const currentBalance = await this.calculateBalance(data.productId, tx);
@@ -163,6 +165,8 @@ export class StockMovementsService {
   }
 
   private async invalidateStockBalance(productId: string) {
+    // Toda movimentacao muda o saldo, entao removo o cache para a proxima
+    // consulta recalcular e salvar um valor atualizado.
     await this.redisService.del(`stock-balance:${productId}`);
   }
 }

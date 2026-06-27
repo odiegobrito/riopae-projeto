@@ -24,6 +24,8 @@ export class PurchaseRequestsService {
       throw new NotFoundException('Produto nao encontrado.');
     }
 
+    // A regra do desafio nao permite duas solicitacoes pendentes
+    // para o mesmo produto, entao eu barro antes de criar.
     const pendingRequest = await this.prisma.purchaseRequest.findFirst({
       where: {
         productId: data.productId,
@@ -51,6 +53,7 @@ export class PurchaseRequestsService {
   async approve(id: string) {
     const purchaseRequest = await this.findOne(id);
 
+    // Depois que uma solicitacao sai de PENDING, ela nao pode mudar de status.
     if (purchaseRequest.status !== PurchaseRequestStatus.PENDING) {
       throw new BadRequestException(
         'Somente solicitacoes PENDING podem ser aprovadas.',

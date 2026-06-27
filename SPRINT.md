@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Entregar uma API funcional e revisavel para controle de estoque, cobrindo cadastro de produtos, movimentacoes, saldo com Redis, solicitacoes de compra, autenticacao/autorizacao, testes e documentacao de entrega.
+Nesta sprint eu foquei em entregar uma API funcional, revisavel e simples de rodar. A meta foi cobrir o fluxo principal de estoque e solicitacao de compra sem fugir do escopo do desafio: produtos, movimentacoes, saldo com Redis, autenticacao/autorizacao, testes e documentacao.
 
 ## Historias de usuario
 
@@ -69,31 +69,32 @@ Criterios de aceite:
 
 ## Checklist tecnico
 
-- [x] Projeto NestJS + TypeScript.
-- [x] Docker Compose com API, PostgreSQL e Redis.
-- [x] Prisma schema e migrations.
-- [x] `.env.example` e `.gitignore`.
-- [x] Seed de usuarios.
-- [x] CRUD parcial de produtos conforme requisito.
-- [x] Movimentacoes de estoque.
-- [x] Consulta de saldo com Redis, TTL e invalidacao.
-- [x] Solicitacoes de compra.
-- [x] JWT e guards por perfil.
-- [x] Swagger em `/docs`.
-- [x] README completo.
-- [x] Testes automatizados acima do minimo obrigatorio.
-- [ ] CI no GitHub Actions.
+- [x] Criei o projeto com NestJS + TypeScript.
+- [x] Configurei Docker Compose com API, PostgreSQL e Redis.
+- [x] Modelei o Prisma schema e gerei migrations.
+- [x] Adicionei `.env.example` e `.gitignore`.
+- [x] Criei seed de usuarios de teste.
+- [x] Implementei o cadastro e a consulta de produtos.
+- [x] Implementei movimentacoes de estoque.
+- [x] Adicionei consulta de saldo com Redis, TTL e invalidacao.
+- [x] Implementei solicitacoes de compra.
+- [x] Adicionei JWT e guards por perfil.
+- [x] Disponibilizei Swagger em `/docs`.
+- [x] Documentei a entrega no README.
+- [x] Criei testes automatizados acima do minimo obrigatorio.
 
 ## Riscos, pendencias e limitacoes
 
-- Ainda nao ha suite de integracao real com banco e Redis.
-- Nao ha paginacao nas listagens.
-- O tipo `ADJUSTMENT` esta no enum, mas o fluxo principal exposto aceita apenas `IN` e `OUT`.
-- O projeto usa seed em vez de endpoint publico de cadastro de usuarios.
-- A auditoria de aprovacao/reprovacao pode ser enriquecida com `approvedById` e `rejectedById`.
-- O fluxo de concorrencia extrema de saida de estoque poderia ser reforcado com locks especificos no PostgreSQL.
+- Ainda nao criei uma suite de integracao real com banco e Redis em containers.
+- As listagens ainda nao possuem paginacao.
+- O tipo `ADJUSTMENT` esta no enum, mas eu mantive o fluxo principal somente com `IN` e `OUT`.
+- Usei seed em vez de endpoint publico de cadastro de usuarios.
+- A auditoria de aprovacao/reprovacao ainda pode evoluir com `approvedById` e `rejectedById`.
+- Em um cenario de concorrencia muito alta, eu reforcaria a saida de estoque com locks especificos no PostgreSQL.
 
-## Divisao de trabalho com outro desenvolvedor
+## Como eu dividiria com outro desenvolvedor
+
+Se eu trabalhasse em dupla, dividiria assim:
 
 Desenvolvedor A:
 
@@ -118,11 +119,11 @@ Revisao conjunta:
 
 ## Plano de code review
 
-O PR deve destacar:
+No PR eu destacaria:
 
-- escopo funcional entregue;
-- decisoes tecnicas;
+- o escopo funcional entregue;
+- as decisoes tecnicas que tomei;
 - como rodar localmente;
-- como testar;
+- como executar testes;
 - riscos conhecidos;
-- pontos que merecem revisao cuidadosa, especialmente permissoes, constraints e cache.
+- pontos que merecem revisao cuidadosa, principalmente permissoes, constraints e cache.
