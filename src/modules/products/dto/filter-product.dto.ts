@@ -25,4 +25,12 @@ export class FilterProductDto {
   @IsOptional()
   @IsBooleanString()
   active?: string;
+
+  @ApiPropertyOptional({
+    example: 'true',
+    description: 'Alias para active, mantendo o filtro por status do desafio.',
+  })
+  @IsOptional()
+  @IsBooleanString()
+  status?: string;
 }

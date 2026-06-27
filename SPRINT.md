@@ -15,7 +15,7 @@ Criterios de aceite:
 - Criar produto com nome, SKU e estoque minimo.
 - Bloquear SKU duplicado.
 - Bloquear estoque minimo negativo.
-- Listar produtos com filtros por nome, SKU e active.
+- Listar produtos com filtros por nome, SKU e active/status.
 - Consultar produto por ID.
 - Permitir ativacao/inativacao conforme permissao.
 

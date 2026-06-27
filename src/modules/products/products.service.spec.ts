@@ -10,6 +10,7 @@ describe('ProductsService', () => {
   let prisma: {
     product: {
       findUnique: jest.Mock;
+      findMany: jest.Mock;
       create: jest.Mock;
     };
     stockMovement: {
@@ -25,6 +26,7 @@ describe('ProductsService', () => {
     prisma = {
       product: {
         findUnique: jest.fn(),
+        findMany: jest.fn(),
         create: jest.fn(),
       },
       stockMovement: {
@@ -96,6 +98,25 @@ describe('ProductsService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
 
     expect(prisma.product.create).not.toHaveBeenCalled();
+  });
+
+  it('lista produtos aceitando status como alias de active', async () => {
+    prisma.product.findMany.mockResolvedValue([]);
+
+    await service.findAll({
+      status: 'false',
+    });
+
+    expect(prisma.product.findMany).toHaveBeenCalledWith({
+      where: {
+        name: undefined,
+        sku: undefined,
+        active: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   });
 
   it('calcula saldo de estoque a partir das movimentacoes e grava cache', async () => {

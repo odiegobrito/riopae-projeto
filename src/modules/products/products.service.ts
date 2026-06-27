@@ -40,10 +40,10 @@ export class ProductsService {
   async findAll(filters: FilterProductDto) {
     const name = filters.name?.trim() || undefined;
     const sku = filters.sku?.trim() || undefined;
-    const activeFilter = filters.active?.trim();
+    const activeFilter = filters.active?.trim() ?? filters.status?.trim();
 
     // Converto o filtro recebido pela query string para boolean,
-    // deixando undefined quando o cliente nao quiser filtrar por status ativo.
+    // deixando undefined quando o cliente nao quiser filtrar por active/status.
     const active =
       activeFilter === 'true'
         ? true

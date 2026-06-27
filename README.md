@@ -193,7 +193,7 @@ Principais endpoints:
 | ------ | -------------------------------- | --------------------------------------------------- |
 | POST   | `/auth/login`                    | Login JWT                                           |
 | POST   | `/products`                      | Criar produto                                       |
-| GET    | `/products`                      | Listar produtos com filtros `name`, `sku`, `active` |
+| GET    | `/products`                      | Listar produtos com filtros `name`, `sku`, `active` ou `status` |
 | GET    | `/products/:id`                  | Buscar produto                                      |
 | PATCH  | `/products/:id/activate`         | Ativar produto                                      |
 | PATCH  | `/products/:id/inactivate`       | Inativar produto                                    |
