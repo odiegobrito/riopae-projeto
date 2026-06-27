@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  OPERATOR
+  MANAGER
+  ADMIN
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+enum PurchaseRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stockMovements   StockMovement[]
+  purchaseRequests PurchaseRequest[]
+
+  @@map("users")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  name         String
+  sku          String   @unique
+  minimumStock Int
+  status       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  stockMovements   StockMovement[]
+  purchaseRequests PurchaseRequest[]
+
+  @@index([name])
+  @@index([sku])
+  @@index([status])
+  @@map("products")
+}
+
+model StockMovement {
+  id        String            @id @default(uuid())
+  productId String
+  userId    String
+  type      StockMovementType
+  quantity  Int
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([productId])
+  @@index([userId])
+  @@map("stock_movements")
+}
+
+model PurchaseRequest {
+  id              String                @id @default(uuid())
+  productId       String
+  requestedById   String
+  status          PurchaseRequestStatus @default(PENDING)
+  rejectionReason String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  product     Product @relation(fields: [productId], references: [id])
+  requestedBy User    @relation(fields: [requestedById], references: [id])
+
+  @@index([productId])
+  @@index([requestedById])
+  @@index([status])
+  @@map("purchase_requests")
+}

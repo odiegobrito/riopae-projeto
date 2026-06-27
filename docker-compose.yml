@@ -1,0 +1,38 @@
+services:
+  api:
+    build: .
+    container_name: riopae_api
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      APP_NAME: "Riopae Stock API"
+      DATABASE_URL: "postgresql://riopae:postgres@postgres:5432/riopae_stock?schema=public"
+      JWT_SECRET: "riopae-secret-dev"
+      JWT_EXPIRES_IN: "1d"
+      REDIS_HOST: "redis"
+      REDIS_PORT: 6379
+      STOCK_BALANCE_CACHE_TTL: 60
+    ports:
+      - "3000:3000"
+
+  postgres:
+    image: postgres:16
+    container_name: riopae_postgres
+    environment:
+      POSTGRES_USER: riopae 
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: riopae_stock
+    ports:
+      - "5432:5432"
+    volumes:
+      - riopae_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: riopae_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  riopae_postgres_data:
